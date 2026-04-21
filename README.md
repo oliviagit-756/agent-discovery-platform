@@ -45,7 +45,7 @@ GEMINI_API_KEY=your-key-here
 
 ### 1. How would you extend this to support billing without double charging?
 
-The existing `request_id` idempotency is the foundation — same ID always maps to the same billed event. For billing specifically, I'd add a `billed_at` timestamp and a separate `invoices` table so each usage row is marked as billed exactly once. A nightly job aggregates unbilled usage per caller into an invoice inside a DB transaction, flipping `billed_at` atomically. If the job crashes mid-run, it can safely re-run because already-billed rows are skipped. For stronger guarantees I'd wrap the billing job in a distributed lock (e.g., Redis) so two workers can't bill the same window simultaneously.
+The existing `request_id` idempotency is the foundation same ID always maps to the same billed event. For billing specifically, I'd add a `billed_at` timestamp and a separate `invoices` table so each usage row is marked as billed exactly once. A nightly job aggregates unbilled usage per caller into an invoice inside a DB transaction, flipping `billed_at` atomically. If the job crashes mid-run, it can safely re-run because already-billed rows are skipped. For stronger guarantees I'd wrap the billing job in a distributed lock (e.g., Redis) so two workers can't bill the same window simultaneously.
 
 ### 2. How would you store this data at 100K agents scale?
 
